@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./hik_whitelists.sol";
-contract HikMintFactory is ERC721URIStorage, Ownable, WhiteLists {
+contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenId;
 

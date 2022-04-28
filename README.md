@@ -102,6 +102,8 @@
                 -> 판매 허가 후, 판매를 시작한다고 세팅. setter.
                 -> adminOnly executes
                 -> 재창작물이 아닌경우, _originalGroupId =0 , 재창작물일 경우, _originalGroupId 는 원창작물의 그룹아이디를 넣는다.
+                -> ex) 1. 원창작물 : setupSale(1,0,0x2FCC7b6400eD578C1bEBBEaC35eed342660a58EC,100000000000000000,550,100,"ipfs://QmVoW4fKmEHcf6Zs1GoisoJ1E2RuzsNBuXGfwBhN2RcNxQ/99.png")
+                -> ex) 2. 재창작물 : setupSale(2,1,0x638c3cd87c92538e803E4983443c415441b0b5A8,100000000000000000,0,100,"ipfs://QmVoW4fKmEHcf6Zs1GoisoJ1E2RuzsNBuXGfwBhN2RcNxQ/100.png")
             18. buyNft(uint256 _groupId)
                 -> Nft 판매.
                 -> 구매자는 groupID 의 getSalePrice(5번) 보다 높은 matic을 보낼수 있게 msg.value 를 설정.
