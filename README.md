@@ -73,12 +73,12 @@
                ->로얄티 % 세팅 .setter
                ->adminOnly executes
                -> _loyalty value :10000 => 100%, 1000=>10%, 500 => 5%, 100 => 1%. 2번 참고.
-            9. getMetaData(uint256 _groupId)
+<!--             9. getMetaData(uint256 _groupId)
                ->return: string
                -> 메타데이타 url정보 리턴. getter
             10. setMetaData(uint256 _groupId, string memory _uri)
                 -> 메타데이타 url 세팅. setter
-                ->adminOnly executes
+                ->adminOnly executes -->
             11. getSaleStatus(uint256 _groupId)
                 -> return:bool
                 -> 판매중 또는 판매 정지. getter
@@ -98,15 +98,15 @@
                 -> return: uint256
                 -> tokenId point to groupId. getter
                 -> nft 판매가 완료된 후, nft token id와 group id 를 맵핑
-            17. setupSale(uint256 _groupId,uint256 _originalGroupId,address _groupOwner, uint256 _price,uint256 _loyalty, uint256 _mintAmounts ,string memory _metadataUri)
+            17. setupSale(uint256 _groupId,uint256 _originalGroupId,address _groupOwner, uint256 _price,uint256 _loyalty, uint256 _mintAmounts)
                 -> 판매 허가 후, 판매를 시작한다고 세팅. setter.
                 -> adminOnly executes
                 -> 재창작물이 아닌경우, _originalGroupId =0 , 재창작물일 경우, _originalGroupId 는 원창작물의 그룹아이디를 넣는다.
                 -> ex) 1. 원창작물 : setupSale(1,0,0x2FCC7b6400eD578C1bEBBEaC35eed342660a58EC,100000000000000000,550,100,"ipfs://QmVoW4fKmEHcf6Zs1GoisoJ1E2RuzsNBuXGfwBhN2RcNxQ/99.png")
                 -> ex) 2. 재창작물 : setupSale(2,1,0x638c3cd87c92538e803E4983443c415441b0b5A8,100000000000000000,0,100,"ipfs://QmVoW4fKmEHcf6Zs1GoisoJ1E2RuzsNBuXGfwBhN2RcNxQ/100.png")
-            18. buyNft(uint256 _groupId)
+            18. buyNft(uint256 _groupId,string memory _metadataUri)
                 -> Nft 판매.
-                -> 구매자는 groupID 의 getSalePrice(5번) 보다 높은 matic을 보낼수 있게 msg.value 를 설정.
+                -> 구매자는 groupID 의 getSalePrice(5번) 보다 높은 matic을 보낼수 있게 msg.value 를 설정. metadata 
                 -> 모든 설정이 끝나면, 구매자의 msg.value의 값이. 1. 서비스 비용 %(getServiceFee() 1번) 2. loyalty % (getLoyalty(getOriginalGroup(_groupId))) 원작자가 지정한 로얄티 %, 3. 앞에 service fee 와 loyalty를 제거한 금액 으로 계산됨.
                 -> 판매자, 원작자에게 matic은 분배가 되며, 나머지 service fee 는 HikMintFactory 안에 남게된다.
                 -> 민팅 후, 구매자 주소로 nft 전송.
