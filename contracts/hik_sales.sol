@@ -18,7 +18,7 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     mapping(uint256=>uint256) private _nftGroupMintAmounts;
     mapping(uint256=>uint256) private _nftGroupSoldAmounts;
     mapping(uint256=>uint256) private _nftGroupLoyalty;
-    mapping(uint256=>string) private _nftGroupURI;
+    //mapping(uint256=>string) private _nftGroupURI;
     //*****************
     //token id mapping
     mapping(uint256=>uint256) private _nftTokenToGroupId;
@@ -72,12 +72,12 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     }
     //**********************************
     //set metadata && get metadata
-    function getMetaData(uint256 _groupId) public view returns(string memory){
-        return _nftGroupURI[_groupId];
-    }
-    function setMetaData(uint256 _groupId, string memory _uri) public adminOnly{
-        _nftGroupURI[_groupId]=_uri;
-    }
+    // function getMetaData(uint256 _groupId) public view returns(string memory){
+    //     return _nftGroupURI[_groupId];
+    // }
+    // function setMetaData(uint256 _groupId, string memory _uri) public adminOnly{
+    //     _nftGroupURI[_groupId]=_uri;
+    // }
     //set sale status && get sale status
     function getSaleStatus(uint256 _groupId) public view returns(bool){
         return _nftGroupSaleStatus[_groupId];
@@ -107,19 +107,19 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     //**********************************
 
     //setup sales once the mint requests are approved!
-    function setupSale(uint256 _groupId,uint256 _originalGroupId,address _groupOwner, uint256 _price,uint256 _loyalty, uint256 _mintAmounts ,string memory _metadataUri) external adminOnly whenNotPaused {
+    function setupSale(uint256 _groupId,uint256 _originalGroupId,address _groupOwner, uint256 _price,uint256 _loyalty, uint256 _mintAmounts) external adminOnly whenNotPaused {
         //setGroupOwner(_groupId,_groupOwner);
         _nftGroupOwner[_groupId]=_groupOwner;
         _nftOriginalGroupId[_groupId]=_originalGroupId;
         setSalePrice(_groupId,_price);
         setLoyalty(_groupId,_loyalty);
         setMintAmount(_groupId,_mintAmounts);
-        setMetaData(_groupId,_metadataUri);
+        //setMetaData(_groupId,_metadataUri);
         setSaleStatus(_groupId,true);
         //whiteListsAddress.setMinter(_groupOwner);
     }
 
-    function buyNft(uint256 _groupId) public payable nonReentrant whenNotPaused returns(uint256){
+    function buyNft(uint256 _groupId,string memory _metadataUri) public payable nonReentrant whenNotPaused returns(uint256){
         require(whiteListsAddress.getMinter(getGroupOwner(_groupId))==true,"the seller items are suspended");
         require(getSaleStatus(_groupId)==true,"the item is not on sale");
         require(getGroupOwner(_groupId) != address(0),"group ID is not available");
@@ -141,7 +141,7 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
         _tokenId.increment();
         uint256 newTokenId = _tokenId.current();
         _safeMint(msg.sender,newTokenId);
-        _setTokenURI(newTokenId,getMetaData(_groupId));
+        _setTokenURI(newTokenId,_metadataUri);
         _nftTokenToGroupId[newTokenId]=_groupId;
         _nftGroupSoldAmounts[_groupId]+=1;
         //(uint256 _tokenId, uint256 _groupId, uint256 _totalValue, uint256 _transferredToRoyalty,
