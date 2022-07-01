@@ -59,7 +59,8 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     function getSalePrice(uint256 _groupId) public view returns(uint256){
         return _nftGroupSalePrice[_groupId];
     }
-    function setSalePrice(uint256 _groupId, uint256 _price) public adminOnly{
+    function setSalePrice(uint256 _groupId, uint256 _price) public{
+        require(whiteListsAddress.getAdmin(msg.sender)==true || getGroupOwner(_groupId)==msg.sender,"operators in the admins only or group Owner");
         _nftGroupSalePrice[_groupId]=_price;
     }
     //**********************************
@@ -107,7 +108,8 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     //**********************************
 
     //setup sales once the mint requests are approved!
-    function setupSale(uint256 _groupId,uint256 _originalGroupId,address _groupOwner, uint256 _price,uint256 _loyalty, uint256 _mintAmounts) external adminOnly whenNotPaused {
+    function setupSale(uint256 _groupId,uint256 _originalGroupId,
+    address _groupOwner, uint256 _price,uint256 _loyalty, uint256 _mintAmounts) external adminOnly whenNotPaused {
         //setGroupOwner(_groupId,_groupOwner);
         _nftGroupOwner[_groupId]=_groupOwner;
         _nftOriginalGroupId[_groupId]=_originalGroupId;
