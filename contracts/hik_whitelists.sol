@@ -13,6 +13,7 @@ contract WhiteLists is Ownable, Pausable, ReentrancyGuard {
     }
     constructor(){
         setAdmin(msg.sender);
+        setMinter(msg.sender);
 
     }
     function setMinter(address _address) public onlyAdmins whenNotPaused{
