@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract WhiteLists is Ownable, Pausable, ReentrancyGuard {
     mapping(address=>bool) private _minters;
     mapping(address=>bool) private _admins;
+    
+    //address public subAdmins;
     modifier onlyAdmins(){
         require(getAdmin(msg.sender)==true,"operators in the admin only");
         _;
@@ -35,11 +37,13 @@ contract WhiteLists is Ownable, Pausable, ReentrancyGuard {
     function deleteAdmin(address _address) public onlyOwner whenNotPaused{
         _admins[_address]=false;
     }
+
     function pause() public onlyOwner{
         _pause();
     }
     function unpause() public onlyOwner{
         _unpause();
     }
+
 
 }
