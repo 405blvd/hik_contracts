@@ -47,7 +47,7 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
         return _serviceFee;
     }
     function setServiceFee(uint256 _newServiceFee) public onlyOwner{
-        //10000 => 100%, 1000=>10%, 500 => 5%, 100% => 1%
+        //10000 => 100%, 1000=>10%, 500 => 5%, 100 => 1%
         _serviceFee=_newServiceFee;
     }
     //set group owner && get group owner
@@ -63,17 +63,20 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     function getSalePrice(uint256 _groupId) public view returns(uint256){
         return _nftGroupSalePrice[_groupId];
     }
-    function setSalePrice(uint256 _groupId, uint256 _price) public{
-        require(whiteListsAddress.getAdmin(msg.sender)==true|| msg.sender==_subAdmin,"operators in the admins only or group Owner");
-        _nftGroupSalePrice[_groupId]=_price;
+    function getSaleQuantityAndSoldQuantity(uint256 _groupId) public view returns(uint256[2] memory){
+        return [_nftGroupMintAmounts[_groupId],_nftGroupSoldAmounts[_groupId]];
     }
-    // function getDateTime(uint256 _groupId) public view returns(uint256[]memory){
-    //     return _nftGroupDateTime[_groupId];
+    // function setSalePrice(uint256 _groupId, uint256 _price) public{
+    //     require(whiteListsAddress.getAdmin(msg.sender)==true|| msg.sender==_subAdmin,"operators in the admins only or group Owner");
+    //     _nftGroupSalePrice[_groupId]=_price;
     // }
-    function setDateTime(uint256 _groupId, uint256 _startTime, uint256 _endTime) public{
-        require(whiteListsAddress.getAdmin(msg.sender)==true || msg.sender==_subAdmin,"operators in the admins only or group Owner");
-        _nftGroupDateTime[_groupId]=[_startTime,_endTime];
+    function getDateTime(uint256 _groupId) public view returns(uint256[]memory){
+        return _nftGroupDateTime[_groupId];
     }
+    // function setDateTime(uint256 _groupId, uint256 _startTime, uint256 _endTime) public{
+    //     require(whiteListsAddress.getAdmin(msg.sender)==true || msg.sender==_subAdmin,"operators in the admins only or group Owner");
+    //     _nftGroupDateTime[_groupId]=[_startTime,_endTime];
+    // }
     //
     //**********************************
     //set loyalty && get loyalty
@@ -110,16 +113,17 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     //setup sales once the mint requests are approved!
     function setupSale(uint256 _groupId,uint256 _originalGroupId,
     address _groupOwner, uint256 _price,uint256 _loyalty, 
-    uint256 _mintAmounts,uint256 _saleStartTime, uint256 _saleEndTime) external adminOnly whenNotPaused {
+    uint256 _mintAmounts,uint256 _saleStartTime, uint256 _saleEndTime) external whenNotPaused {
         //setGroupOwner(_groupId,_groupOwner);
+        require(whiteListsAddress.getAdmin(msg.sender)==true || msg.sender==_subAdmin,"operators in the admins only or group Owner");
         _nftGroupOwner[_groupId]=_groupOwner;
         _nftOriginalGroupId[_groupId]=_originalGroupId;
-        setSalePrice(_groupId,_price);
+        _nftGroupSalePrice[_groupId]=_price;
         _nftGroupLoyalty[_groupId]=_loyalty;
         _nftGroupMintAmounts[_groupId]=_mintAmounts;
         //setMetaData(_groupId,_metadataUri);
         setSaleStatus(_groupId,true);
-        setDateTime(_groupId,_saleStartTime,_saleEndTime);
+        _nftGroupDateTime[_groupId]=[_saleStartTime,_saleEndTime];
         //whiteListsAddress.setMinter(_groupOwner);
     }
 
@@ -127,7 +131,7 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
         require(whiteListsAddress.getMinter(getGroupOwner(_groupId))==true,"the seller items are suspended");
         require(getSaleStatus(_groupId)==true,"the item is not on sale");
         require(getGroupOwner(_groupId) != address(0),"group ID is not available");
-        require(_nftGroupMintAmounts[_groupId] >= _nftGroupSoldAmounts[_groupId],"sold out");
+        require(_nftGroupMintAmounts[_groupId] > _nftGroupSoldAmounts[_groupId],"sold out");
         require(msg.sender != getGroupOwner(_groupId),"unable to buy own nft");
         require(getSalePrice(_groupId)>0,"unable buy this item");
         require(msg.value >= getSalePrice(_groupId),"insufficient fund");
@@ -137,12 +141,15 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
         //loyalty
         if(getOriginalGroup(_groupId)>0){
             loyaltyFee=msg.value*getLoyalty(getOriginalGroup(_groupId))/10000;
-            (bool success1, )= payable(address(getGroupOwner(getOriginalGroup(_groupId)))).call{value:loyaltyFee}("");
-            require(success1, "Transfer failed.");
+            if(loyaltyFee>0){
+                (bool success1, )= payable(address(getGroupOwner(getOriginalGroup(_groupId)))).call{value:loyaltyFee}("");
+                require(success1, "Transfer loyalty failed.");
+            }
+            
         }
         //seller
         (bool success2, )= payable(address(getGroupOwner(_groupId))).call{value:msg.value-serviceFee-loyaltyFee}("");
-        require(success2, "Transfer failed.");
+        require(success2, "Transfer to Seller failed.");
         _tokenId.increment();
         uint256 newTokenId = _tokenId.current();
         _safeMint(msg.sender,newTokenId);
@@ -159,7 +166,7 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
          // custom function code
          emit Received(msg.sender, msg.value);
     }
-    function withdraw(uint256 amount) external adminOnly whenNotPaused{
+    function withdraw(uint256 amount) public payable adminOnly whenNotPaused{
         require(amount<=address(this).balance,"amount is exceeded");
         (bool success, )=payable(whiteListsAddress.owner()).call{value:amount}("");
         require(success, "Transfer failed.");
