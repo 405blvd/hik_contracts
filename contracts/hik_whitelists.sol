@@ -7,36 +7,45 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract WhiteLists is Ownable, Pausable, ReentrancyGuard {
     mapping(address=>bool) private _minters;
     mapping(address=>bool) private _admins;
-    
+    mapping(address=>bool) private _subAdmin;
     //address public subAdmins;
     modifier onlyAdmins(){
-        require(getAdmin(msg.sender)==true,"operators in the admin only");
+        require(_admins[msg.sender]==true,"operators in the admin only");
         _;
     }
     constructor(){
-        setAdmin(msg.sender);
-        setMinter(msg.sender);
+        _admins[msg.sender]=true;
+        _minters[msg.sender]=true;
+        _subAdmin[msg.sender]=true;
 
     }
-    function setMinter(address _address) public onlyAdmins whenNotPaused{
-        _minters[_address]=true;
+    function setSubAdmin(address _address, bool _status) external onlyAdmins whenNotPaused{
+        _subAdmin[_address]=_status;
     }
-    function getMinter(address _address) public view returns(bool){
+    function getSubAdmin(address _address) external view returns(bool){
+        return _subAdmin[_address];
+    }
+    // function deleteSubAdmin(address _address) public onlyAdmins whenNotPaused{
+    //     _subAdmin[_address]=false;
+    // }
+    function setMinter(address _address, bool _status) external onlyAdmins whenNotPaused{
+        _minters[_address]=_status;
+    }
+    function getMinter(address _address) external view returns(bool){
         return _minters[_address];
     }
-    function deleteMinter(address _address) public onlyAdmins whenNotPaused{
-        _minters[_address]=false;
-    }
-
-    function getAdmin(address _address) public whenNotPaused view returns(bool){
+    // function deleteMinter(address _address) external onlyAdmins whenNotPaused{
+    //     _minters[_address]=false;
+    // }
+    function getAdmin(address _address) external whenNotPaused view returns(bool){
         return _admins[_address];
     }
-    function setAdmin(address _address) public onlyOwner whenNotPaused{
-        _admins[_address]=true;
+    function setAdmin(address _address,bool _status) external onlyOwner whenNotPaused{
+        _admins[_address]=_status;
     }
-    function deleteAdmin(address _address) public onlyOwner whenNotPaused{
-        _admins[_address]=false;
-    }
+    // function deleteAdmin(address _address) external onlyOwner whenNotPaused{
+    //     _admins[_address]=false;
+    // }
 
     function pause() public onlyOwner{
         _pause();
