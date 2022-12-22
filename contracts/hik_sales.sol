@@ -170,7 +170,7 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     }
     function withdraw(uint256 amount) external payable adminOnly whenNotPaused{
         require(amount<=address(this).balance,"amount is exceeded");
-        (bool success, )=payable(whiteListsAddress.owner()).call{value:amount}("");
+        (bool success, )=payable(owner()).call{value:amount}("");
         require(success, "Transfer failed.");
 
     }
