@@ -4,7 +4,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "./hik_whitelists.sol";
+import "./hik_whitelists_final.sol";
 contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenId;
@@ -75,10 +75,10 @@ contract HikSales is ERC721URIStorage, Ownable, WhiteLists {
     // function getDateTime(uint256 _groupId) public view returns(uint256[]memory){
     //     return _nftGroupDateTime[_groupId];
     // }
-    // function setDateTime(uint256 _groupId, uint256 _startTime, uint256 _endTime) public subAdminOrAdminOnly{
-    //     //require(whiteListsAddress.getAdmin(msg.sender)==true || msg.sender==_subAdmin,"operators in the admins only or group Owner");
-    //     _nftGroupDateTime[_groupId]=[_startTime,_endTime];
-    // }
+    function setDateTime(uint256 _groupId, uint256 _startTime, uint256 _endTime) public subAdminOrAdminOnly{
+        //require(whiteListsAddress.getAdmin(msg.sender)==true || msg.sender==_subAdmin,"operators in the admins only or group Owner");
+        _nftGroupDateTime[_groupId]=[_startTime,_endTime];
+    }
     //
     //**********************************
     //set loyalty && get loyalty
